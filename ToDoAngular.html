@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html ng-app="toDoApp">
+<head>
+	<title>To Do List in Angular</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>	
+</head>
+<body ng-controller="toDoController as tdctrl" ng-init="init()">
+	<div class= "container-fluid">
+		<div class="page-header text-center">
+			<h1 >To Do List in AngularJS</h1>
+		</div>
+	</div>
+	<div class="container-fluid">
+		<!--Main input box for tasks-->
+		<div class="row form-group">
+			<div class="col-md-3"></div>
+			<div class="col-md-6">
+				<input ng-model="task" ng-change="checkInput()" type="text" class="form-control" placeholder="What do you want to do today?" name="task" required>
+			</div>
+			<div class="col-md-3"></div>
+		</div>
+		<!-- Add button to create a new task -->
+		<div class="row form-group">
+			<div class="col-md-5"></div>
+			<div class="col-md-2">
+				<button ng-disabled="!validInput" ng-click="addTask()" class="btn btn-warning btn-block">Add To Do</button>
+			</div>
+			<div class="col-md-5"></div>
+		</div>
+		<!--View for created tasks. Remove and Edit option are available. Depending on editViewFlag either edit view is shown or hidden. -->
+		<div class="row form-group" ng-repeat="list in toDoList">
+			<div class="col-md-4"></div>
+			<div class="col-md-4">
+				<div class="list-group-item">
+					<div class="checkbox" ng-show="!list.editView">
+						<label ng-style="doneStatus($index)"><input type="checkbox" ng-model="checkBoxModel" ng-change="updateTaskStatus($index)">{{list.action}}</label>
+					</div>
+					<div class="container-fluid" ng-show="list.editView">
+						<div class="input-lg"><input type="textarea" class="form-control" ng-model="list.action" ng-change="checkUpdate($index)" required></div>
+						<div class="text-center"><button ng-disabled="!validUpdate" ng-click="showEditView($index)" class="btn btn-primary">Save</button></div>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-1"><button ng-click="deleteTask($index)" class="btn btn-danger">Remove</button></div>
+			<div class="col-md-1"><button ng-disabled="list.doneFlag" ng-click="showEditView($index)" class="btn btn-success">Edit</button></div>
+			<div class="col-md-2"></div>
+		</div>
+	</div>
+</body>
+<script type="text/javascript">
+	(function (){
+		var app = angular.module('toDoApp',[]).
+		controller('toDoController',function($scope) {
+
+			//Initialisation function
+			$scope.init = function init(){
+				$scope.task = null;
+				$scope.validInput = false;
+			};
+
+			//Array of tasks
+			$scope.toDoList = []
+
+			//Function for adding tasks to To Do List. Pushes the input received through task model into the toDoList Array.
+			$scope.addTask = function addTask(){
+				$scope.toDoList.push({action:$scope.task, doneFlag:false, editView:false});
+				$scope.init();
+			};
+
+			//Function to update the status of the task as completed or not completed
+			$scope.updateTaskStatus = function updateTaskStatus(id){
+				if($scope.toDoList[id].doneFlag === false){
+					$scope.toDoList[id].doneFlag = true;
+				}
+				else if($scope.toDoList[id].doneFlag === true){
+					$scope.toDoList[id].doneFlag = false;
+				}
+			};
+
+			//Function that deletes a task
+			$scope.deleteTask = function deleteTask(id){
+				$scope.toDoList.splice(id, 1);
+			};
+
+			//Function for checking validity of main input box
+			$scope.checkInput = function checkInput(){
+				if($scope.task)
+				{
+					$scope.validInput = true;
+				}
+				else{
+					$scope.validInput = false;					
+				}
+			};
+
+			//Function for checking validty of edit view input box
+			$scope.checkUpdate = function checkUpdate(id){
+				if($scope.toDoList[id].action)
+				{
+					$scope.validUpdate = true;
+				}
+				else{
+					$scope.validUpdate = false;					
+				}
+			};
+
+			//Function changes the value of editViewFlag when Edit button is clicked
+			$scope.showEditView = function showEditView(id) {
+				if($scope.toDoList[id].editView === false){
+					$scope.toDoList[id].editView = true;
+				}
+				else if ($scope.toDoList[id].editView === true){
+					$scope.toDoList[id].editView = false;	
+				}
+			};
+
+			//Function to change style property to line-through when doneFlag status is changed
+			$scope.doneStatus = function doneStatus(id){
+				$scope.mystyle = null;
+				if($scope.toDoList[id].doneFlag)
+				{
+					$scope.mystyle = {'text-decoration': 'line-through'};
+				}
+				return $scope.mystyle;
+			};
+
+		});
+	})();
+</script>
+</html>
