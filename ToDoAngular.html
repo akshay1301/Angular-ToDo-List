@@ -50,6 +50,32 @@
 			<div class="col-md-1"><button ng-disabled="list.doneFlag" ng-click="showEditView($index)" class="btn btn-success">Edit</button></div>
 			<div class="col-md-2"></div>
 		</div>
+		<!-- Accordion view for tasks created-->
+		<div class="row form-group">
+			<div class="col-md-4"></div>
+			<div class="col-md-4">
+				<div class="panel-group" id="accordion">
+					<div class="panel panel-default">
+						<div class="panel-heading">
+							<h4 class="panel-title">
+								<a data-toggle="collapse" data-parent="#accordion" href="#collapse1">
+									Task heading goes here
+								</a>
+							</h4>
+						</div>
+						<div id="collapse1" class="panel-collapse collapse in">
+							<div class="panel-body">
+								<p>Description: Lorem ipsum dolor lorem ipsum dolor</p>
+								<p style="text-align:right"><em>10th May 2017</em></p>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-4"></div>
+		</div>
+
+		
 	</div>
 </body>
 <script type="text/javascript">
