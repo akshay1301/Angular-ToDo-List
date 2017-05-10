@@ -16,11 +16,26 @@
 		</div>
 	</div>
 	<div class="container-fluid">
-		<!--Main input box for tasks-->
+		<!--Input box for task title-->
 		<div class="row form-group">
 			<div class="col-md-3"></div>
 			<div class="col-md-6">
+				<label for="comment">Title:</label>
 				<input ng-model="task" ng-change="checkInput()" type="text" class="form-control" placeholder="What do you want to do today?" name="task" required>
+			</div>
+			<div class="col-md-3"></div>
+		</div>
+		<!--Input box for description and Date -->
+		<div class="row form-group">
+			<div class="col-md-3"></div>
+			<!--Input box for description -->
+			<div class="col-md-4">
+				<label for="comment">Description:</label>
+  				<textarea ng-model="description" class="form-control" rows="5" id="comment"></textarea>
+			</div>
+			<!--Input box for date -->
+			<div class="col-md-2">
+				
 			</div>
 			<div class="col-md-3"></div>
 		</div>
@@ -53,7 +68,7 @@
 			<div class="col-md-2"></div>
 		</div>
 		<!-- Accordion view for tasks created-->
-		<div class="row form-group">
+		<div class="row form-group" ng-repeat="list in toDoList">
 			<div class="col-md-4"></div>
 			<div class="col-md-4">
 				<div class="panel-group" id="accordion">
@@ -63,21 +78,23 @@
 								<div class="container-fluid panel-title">
 									<input type="checkbox" ng-model="checkBoxModel" ng-change="updateTaskStatus($index)">
 									<a ng-style="doneStatus($index)" data-toggle="collapse" data-parent="#accordion" href="#collapse1">
-									Task heading goes here
+									{{list.action}}
 									</a>
 								</div>
 							</div>
 						</div>
 						<div id="collapse1" class="panel-collapse collapse in">
 							<div class="panel-body">
-								<p>Description: Lorem ipsum dolor lorem ipsum dolor</p>
+								<p>Lorem ipsum dolor lorem ipsum dolor</p>
 								<p style="text-align:right"><em>10th May 2017</em></p>
 							</div>
 						</div>
 					</div>
 				</div>
 			</div>
-			<div class="col-md-4"></div>
+			<div class="col-md-1"><button ng-click="deleteTask($index)" class="btn btn-danger">Remove</button></div>
+			<div class="col-md-1"><button ng-disabled="list.doneFlag" ng-click="showEditView($index)" class="btn btn-success">Edit</button></div>
+			<div class="col-md-2"></div>
 		</div>
 
 		
