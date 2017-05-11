@@ -5,9 +5,9 @@
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
-    <!-- Dependencies for datetimepicker -->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+	<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+	<!-- Dependencies for datetimepicker -->
 	<link rel="stylesheet" href="node_modules/angular-bootstrap-datetimepicker/src/css/datetimepicker.css"/>
 	<script type="text/javascript" src="node_modules/moment/moment.js"></script>
 	<script type="text/javascript" src="node_modules/angular/angular.js"></script>
@@ -35,7 +35,7 @@
 			<div class="col-md-4"></div>
 			<div class="col-md-4">
 				<label for="comment">Description:</label>
-  				<textarea ng-model="description" class="form-control" rows="5" id="comment"></textarea>
+				<textarea ng-model="description" class="form-control" rows="3" id="description" placeholder="Optional"></textarea>
 			</div>
 			<div class="col-md-4"></div>
 		</div>
@@ -46,11 +46,11 @@
 				<label for="comment">Date:</label>
 				<div class="dropdown">
 				  <a class="dropdown-toggle" id="dropdown2" role="button" data-toggle="dropdown" data-target="#" href="#">
-				    <div class="input-group"><input type="text" class="form-control" data-ng-model="dateDropDownInput"><span class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></span>
-				    </div>
+					<div class="input-group"><input type="text" class="form-control" data-ng-model="dateDropDownInput" placeholder="Optional"><span class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></span>
+					</div>
 				  </a>
 				  <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
-				    <datetimepicker data-ng-model="dateDropDownInput" data-datetimepicker-config="{ dropdownSelector: '#dropdown2' }" data-before-render="startDateBeforeRender($dates)"/>
+					<datetimepicker data-ng-model="dateDropDownInput" data-datetimepicker-config="{ dropdownSelector: '#dropdown2' }" data-before-render="startDateBeforeRender($dates)"/>
 				  </ul>
 				</div>
 			</div>
@@ -64,26 +64,6 @@
 			</div>
 			<div class="col-md-5"></div>
 		</div>
-		<!--View for created tasks. Remove and Edit option are available. Depending on editViewFlag either edit view is shown or hidden. -->
-		<div class="row form-group" ng-repeat="list in toDoList">
-			<div class="col-md-4"></div>
-			<div class="col-md-4">
-				<div class="list-group-item">
-					<!--Checkbox view for To Do tasks -->
-					<div class="checkbox" ng-show="!list.editView">
-						<label ng-style="doneStatus($index)"><input type="checkbox" ng-model="checkBoxModel" ng-change="updateTaskStatus($index)">{{list.action}}</label>
-					</div>
-					<!-- Shows up when edit view is clicked -->
-					<div class="container-fluid" ng-show="list.editView">
-						<div class="input-lg"><input type="textarea" class="form-control" ng-model="list.action" ng-change="checkUpdate($index)" required></div>
-						<div class="text-center"><button ng-disabled="!validUpdate" ng-click="showEditView($index)" class="btn btn-primary">Save</button></div>
-					</div>
-				</div>
-			</div>
-			<div class="col-md-1"><button ng-click="deleteTask($index)" class="btn btn-danger">Remove</button></div>
-			<div class="col-md-1"><button ng-disabled="list.doneFlag" ng-click="showEditView($index)" class="btn btn-success">Edit</button></div>
-			<div class="col-md-2"></div>
-		</div>
 		<!-- Accordion view for tasks created-->
 		<div class="row form-group" ng-repeat="list in toDoList">
 			<div class="col-md-4"></div>
@@ -91,7 +71,7 @@
 				<div class="panel-group" id="accordion">
 					<div class="panel panel-default">
 						<div class="panel-heading">
-							<div class="checkbox" ng-show="!list.editView">
+							<div class="checkbox">
 								<div class="container-fluid panel-title">
 									<input type="checkbox" ng-model="checkBoxModel" ng-change="updateTaskStatus($index)">
 									<a ng-style="doneStatus($index)" data-toggle="collapse" data-parent="#accordion" href="#{{list.taskId}}">
@@ -111,11 +91,52 @@
 				</div>
 			</div>
 			<div class="col-md-1"><button ng-click="deleteTask($index)" class="btn btn-danger">Remove</button></div>
-			<div class="col-md-1"><button ng-disabled="list.doneFlag" ng-click="showEditView($index)" class="btn btn-success">Edit</button></div>
+			<div class="col-md-1"><button ng-disabled="list.doneFlag" ng-click="showEditView($index)" class="btn btn-info" data-toggle="modal" data-target="#myModal">Edit</button></div>
 			<div class="col-md-2"></div>
+		</div>	
+	</div>
+	<!-- Modal for Editing Option-->
+	<div id="myModal" class="modal fade" role="dialog">
+		<div class="modal-dialog">
+		<!-- Modal form for editing-->
+			<div class="modal-content">
+				<div class="modal-header">
+					<h4 class="modal-title">Edit To Do</h4>
+				</div>
+				<div class="modal-body">
+					<p>Some text in the modal.</p>
+					<p>
+						<div class= "form-group">
+							<label for="comment">Title:</label>
+							<input type="textarea" class="form-control" ng-model="editAction" ng-change="checkUpdate()" required>
+						</div>
+					</p>
+					<p>
+						<div class="form-group">
+							<label for="comment">Description:</label>
+							<textarea ng-model="editDesc" class="form-control" rows="3" id="description" placeholder="Optional"></textarea>
+						</div>
+					</p>
+					<p>
+						<div class="form-group">
+							<label for="comment">Date:</label>
+							<div class="dropdown">
+								<a class="dropdown-toggle" id="dropdown2" role="button" data-toggle="dropdown" data-target="#" href="#">
+									<div class="input-group"><input type="text" class="form-control" data-ng-model="editDate" placeholder="Optional"><span class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></span>
+									</div>
+								</a>
+								<ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+									<datetimepicker data-ng-model="editDate" data-datetimepicker-config="{ dropdownSelector: '#dropdown2' }" data-before-render="startDateBeforeRender($dates)"/>
+								</ul>
+							</div>
+						</div>
+					</p>
+				</div>
+				<div class="modal-footer">
+					<button type="button" ng-disabled="!validUpdate" ng-click="saveEdit()" class="btn btn-info" data-dismiss="modal">Save</button>
+				</div>
+			</div>
 		</div>
-
-		
 	</div>
 </body>
 <script type="text/javascript">
@@ -124,12 +145,16 @@
 		var app = angular.module('toDoApp',['ui.bootstrap.datetimepicker']).
 		controller('toDoController',function($scope) {
 
+			//Global variables
 			$scope.tId = 0;
+			$scope.editTaskId = null;
+
 			//Initialisation function
 			$scope.init = function init(){
 				$scope.task = null;
 				$scope.description = null;
 				$scope.validInput = false;
+				$scope.dateDropDownInput = null;
 			};
 
 			//Array of tasks
@@ -138,19 +163,19 @@
 			//Function for adding tasks to To Do List. Pushes the input received through task model into the toDoList Array.
 			$scope.addTask = function addTask(){
 				//Angular function to check whether a model is undefined
-				console.log("datepicker default value", $scope.dateDropDownInput)
+				//console.log("datepicker default value", $scope.dateDropDownInput)
 				if(angular.isUndefined($scope.dateDropDownInput))
 				{
 					$scope.tDate = null;
-					console.log("datepicker condition false")
+					//console.log("datepicker condition false")
 				}
 				else
 				{
 					$scope.tDate = $scope.dateDropDownInput;
-					console.log("datepicker condition true")
+					//console.log("datepicker condition true")
 				}
-				console.log("Value of tDate", $scope.tDate)
-				$scope.toDoList.push({taskId:$scope.tId,action:$scope.task, desc:$scope.description,tskdate:$scope.tDate,doneFlag:false, editView:false});
+				//console.log("Value of tDate", $scope.tDate)
+				$scope.toDoList.push({taskId:$scope.tId,action:$scope.task, desc:$scope.description,tskdate:$scope.tDate,doneFlag:false});
 				$scope.tId++;
 				$scope.init();
 			};
@@ -182,8 +207,8 @@
 			};
 
 			//Function for checking validty of edit view input box
-			$scope.checkUpdate = function checkUpdate(id){
-				if($scope.toDoList[id].action)
+			$scope.checkUpdate = function checkUpdate(){
+				if($scope.editAction)
 				{
 					$scope.validUpdate = true;
 				}
@@ -192,15 +217,26 @@
 				}
 			};
 
-			//Function changes the value of editViewFlag when Edit button is clicked
+			//Function executed when edit button is clicked. Initialises values for edit Modal.
 			$scope.showEditView = function showEditView(id) {
-				if($scope.toDoList[id].editView === false){
-					$scope.toDoList[id].editView = true;
-				}
-				else if ($scope.toDoList[id].editView === true){
-					$scope.toDoList[id].editView = false;	
-				}
+				//console.log("Show Edit View, ID:", id);
+				$scope.editAction = $scope.toDoList[id].action;
+				$scope.editDesc = $scope.toDoList[id].desc;
+				$scope.editDate = $scope.toDoList[id].tskdate;
+				$scope.editTaskId = id;
+				//console.log("editTaskID initialised ", $scope.editTaskId);
 			};
+
+			//Function executed when Save button is clicked. Saves the input values in the To Do List Array.
+			$scope.saveEdit = function saveEdit(){
+				//console.log("Save Edit executed. Task id received ", $scope.editTaskId);
+				var id = $scope.editTaskId;
+				//console.log("Task Id assigned to local variable", id)
+				$scope.toDoList[id].action = $scope.editAction;
+				$scope.toDoList[id].desc = $scope.editDesc;
+				$scope.toDoList[id].tskdate = $scope.editDate;
+				//console.log("New object: ",$scope.toDoList[id].action, $scope.toDoList[id].desc,$scope.toDoList[id].tskdate);
+			}
 
 			//Function to change style property to line-through when doneFlag status is changed
 			$scope.doneStatus = function doneStatus(id){
@@ -215,12 +251,12 @@
 			//Function to invalidate past dates
 			$scope.startDateBeforeRender = function($dates) {
 			  const todaySinceMidnight = new Date();
-			    todaySinceMidnight.setUTCHours(0,0,0,0);
-			    $dates.filter(function (date) {
-			      return date.utcDateValue < todaySinceMidnight.getTime();
-			    }).forEach(function (date) {
-			      date.selectable = false;
-			    });
+				todaySinceMidnight.setUTCHours(0,0,0,0);
+				$dates.filter(function (date) {
+				  return date.utcDateValue < todaySinceMidnight.getTime();
+				}).forEach(function (date) {
+				  date.selectable = false;
+				});
 			};
 
 			//Add a placeholder if no information has been added
@@ -232,9 +268,10 @@
 				else{
 					$scope.hideFlag = false;
 				}
-				// console.log("value of hideFlag ", $scope.hideFlag);
+				//console.log("Show accordion called, hideFlag: ", $scope.hideFlag);
 				return $scope.hideFlag;
 			}
+
 		});
 	})();
 </script>
