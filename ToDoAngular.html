@@ -7,7 +7,12 @@
 	<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>	
+    <!-- Dependencies for datetimepicker -->
+	<link rel="stylesheet" href="node_modules/angular-bootstrap-datetimepicker/src/css/datetimepicker.css"/>
+	<script type="text/javascript" src="node_modules/moment/moment.js"></script>
+	<script type="text/javascript" src="node_modules/angular/angular.js"></script>
+	<script type="text/javascript" src="node_modules/angular-bootstrap-datetimepicker/src/js/datetimepicker.js"></script>
+	<script type="text/javascript" src="node_modules/angular-bootstrap-datetimepicker/src/js/datetimepicker.templates.js"></script>
 </head>
 <body ng-controller="toDoController as tdctrl" ng-init="init()">
 	<div class= "container-fluid">
@@ -18,26 +23,38 @@
 	<div class="container-fluid">
 		<!--Input box for task title-->
 		<div class="row form-group">
-			<div class="col-md-3"></div>
-			<div class="col-md-6">
+			<div class="col-md-4"></div>
+			<div class="col-md-4">
 				<label for="comment">Title:</label>
 				<input ng-model="task" ng-change="checkInput()" type="text" class="form-control" placeholder="What do you want to do today?" name="task" required>
 			</div>
-			<div class="col-md-3"></div>
+			<div class="col-md-4"></div>
 		</div>
-		<!--Input box for description and Date -->
+		<!--Input box for Description-->
 		<div class="row form-group">
-			<div class="col-md-3"></div>
-			<!--Input box for description -->
+			<div class="col-md-4"></div>
 			<div class="col-md-4">
 				<label for="comment">Description:</label>
   				<textarea ng-model="description" class="form-control" rows="5" id="comment"></textarea>
 			</div>
-			<!--Input box for date -->
-			<div class="col-md-2">
-				
+			<div class="col-md-4"></div>
+		</div>
+		<!-- Input box for Date-->
+		<div class="row form-group">
+			<div class="col-md-4"></div>
+			<div class="col-md-4">
+				<label for="comment">Date:</label>
+				<div class="dropdown">
+				  <a class="dropdown-toggle" id="dropdown2" role="button" data-toggle="dropdown" data-target="#" href="#">
+				    <div class="input-group"><input type="text" class="form-control" data-ng-model="dateDropDownInput"><span class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></span>
+				    </div>
+				  </a>
+				  <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+				    <datetimepicker data-ng-model="dateDropDownInput" data-datetimepicker-config="{ dropdownSelector: '#dropdown2' }" data-before-render="startDateBeforeRender($dates)"/>
+				  </ul>
+				</div>
 			</div>
-			<div class="col-md-3"></div>
+			<div class="col-md-4"></div>
 		</div>
 		<!-- Add button to create a new task -->
 		<div class="row form-group">
@@ -77,16 +94,17 @@
 							<div class="checkbox" ng-show="!list.editView">
 								<div class="container-fluid panel-title">
 									<input type="checkbox" ng-model="checkBoxModel" ng-change="updateTaskStatus($index)">
-									<a ng-style="doneStatus($index)" data-toggle="collapse" data-parent="#accordion" href="#collapse1">
+									<a ng-style="doneStatus($index)" data-toggle="collapse" data-parent="#accordion" href="#{{list.taskId}}">
 									{{list.action}}
 									</a>
 								</div>
 							</div>
 						</div>
-						<div id="collapse1" class="panel-collapse collapse in">
+						<div id="{{list.taskId}}" class="panel-collapse collapse in">
 							<div class="panel-body">
-								<p>Lorem ipsum dolor lorem ipsum dolor</p>
-								<p style="text-align:right"><em>10th May 2017</em></p>
+								<p ng-show="showAccordionEmpty($index)"><em>Add a description and date</em></p>
+								<p>{{list.desc}}</p>
+								<p style="text-align:right"><em>{{list.tskdate | date: 'd MMM yyyy EEEE h:mm a'}}</em></p>
 							</div>
 						</div>
 					</div>
@@ -102,12 +120,15 @@
 </body>
 <script type="text/javascript">
 	(function (){
-		var app = angular.module('toDoApp',[]).
+		//Derective for date time picker
+		var app = angular.module('toDoApp',['ui.bootstrap.datetimepicker']).
 		controller('toDoController',function($scope) {
 
+			$scope.tId = 0;
 			//Initialisation function
 			$scope.init = function init(){
 				$scope.task = null;
+				$scope.description = null;
 				$scope.validInput = false;
 			};
 
@@ -116,7 +137,21 @@
 
 			//Function for adding tasks to To Do List. Pushes the input received through task model into the toDoList Array.
 			$scope.addTask = function addTask(){
-				$scope.toDoList.push({action:$scope.task, doneFlag:false, editView:false});
+				//Angular function to check whether a model is undefined
+				console.log("datepicker default value", $scope.dateDropDownInput)
+				if(angular.isUndefined($scope.dateDropDownInput))
+				{
+					$scope.tDate = null;
+					console.log("datepicker condition false")
+				}
+				else
+				{
+					$scope.tDate = $scope.dateDropDownInput;
+					console.log("datepicker condition true")
+				}
+				console.log("Value of tDate", $scope.tDate)
+				$scope.toDoList.push({taskId:$scope.tId,action:$scope.task, desc:$scope.description,tskdate:$scope.tDate,doneFlag:false, editView:false});
+				$scope.tId++;
 				$scope.init();
 			};
 
@@ -177,6 +212,29 @@
 				return $scope.mystyle;
 			};
 
+			//Function to invalidate past dates
+			$scope.startDateBeforeRender = function($dates) {
+			  const todaySinceMidnight = new Date();
+			    todaySinceMidnight.setUTCHours(0,0,0,0);
+			    $dates.filter(function (date) {
+			      return date.utcDateValue < todaySinceMidnight.getTime();
+			    }).forEach(function (date) {
+			      date.selectable = false;
+			    });
+			};
+
+			//Add a placeholder if no information has been added
+			$scope.showAccordionEmpty = function showAccordionEmpty(id){
+				$scope.hideFlag = true;
+				if(($scope.toDoList[id].desc == null) && ($scope.toDoList[id].tskdate == null)){
+					$scope.hideFlag = true;
+				}
+				else{
+					$scope.hideFlag = false;
+				}
+				// console.log("value of hideFlag ", $scope.hideFlag);
+				return $scope.hideFlag;
+			}
 		});
 	})();
 </script>
