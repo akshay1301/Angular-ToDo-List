@@ -6,11 +6,13 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-	<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+	<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>	
 	<!-- Dependencies for datetimepicker -->
 	<link rel="stylesheet" href="node_modules/angular-bootstrap-datetimepicker/src/css/datetimepicker.css"/>
-	<script type="text/javascript" src="node_modules/moment/moment.js"></script>
 	<script type="text/javascript" src="node_modules/angular/angular.js"></script>
+	<script type="text/javascript" src="node_modules/moment/moment.js"></script>
+	<!--Dependency for Local Storage -->
+	<script type="text/javascript" src="node_modules/angular-local-storage/dist/angular-local-storage.min.js"></script>
 	<script type="text/javascript" src="node_modules/angular-bootstrap-datetimepicker/src/js/datetimepicker.js"></script>
 	<script type="text/javascript" src="node_modules/angular-bootstrap-datetimepicker/src/js/datetimepicker.templates.js"></script>
 </head>
@@ -84,6 +86,7 @@
 							<div class="panel-body">
 								<p ng-show="showAccordionEmpty($index)"><em>Add a description and date</em></p>
 								<p>{{list.desc}}</p>
+								<p>{{list.taskId}}</p>
 								<p style="text-align:right"><em>{{list.tskdate | date: 'd MMM yyyy EEEE h:mm a'}}</em></p>
 							</div>
 						</div>
@@ -141,12 +144,20 @@
 <script type="text/javascript">
 	(function (){
 		//Derective for date time picker
-		var app = angular.module('toDoApp',['ui.bootstrap.datetimepicker']).
-		controller('toDoController',function($scope) {
+		var app = angular.module('toDoApp',['ui.bootstrap.datetimepicker','LocalStorageModule']).
+		controller('toDoController',function($scope, localStorageService) {
+			console.log("Controller was loaded");
 
 			//Global variables
-			$scope.tId = 0;
+			$scope.tId = null;
 			$scope.editTaskId = null;
+
+			//Used for converting toDoList Array to JSON for storing in local Storage which only accepts string
+			$scope.taskString = null;
+
+			//Array of tasks
+			$scope.toDoList = [];
+			console.log(typeof toDoList);
 
 			//Initialisation function
 			$scope.init = function init(){
@@ -154,10 +165,15 @@
 				$scope.description = null;
 				$scope.validInput = false;
 				$scope.dateDropDownInput = null;
+				if(localStorageService.get("tasks")){
+					$scope.toDoList = angular.fromJson(localStorageService.get("tasks"));
+					console.log("toDoList initialized with tasks from local storage", typeof toDoList, $scope.toDoList.isArray);
+				}
+				else{
+					$scope.toDoList = null;
+					console.log("toDoList initialized with null");
+				}
 			};
-
-			//Array of tasks
-			$scope.toDoList = []
 
 			//Function for adding tasks to To Do List. Pushes the input received through task model into the toDoList Array.
 			$scope.addTask = function addTask(){
@@ -174,13 +190,23 @@
 					//console.log("datepicker condition true")
 				}
 				//console.log("Value of tDate", $scope.tDate)
-				$scope.toDoList.push({taskId:$scope.tId,action:$scope.task, desc:$scope.description,tskdate:$scope.tDate,doneFlag:false});
-				$scope.tId++;
+				$scope.tId = Date.now();
+
+				$scope.toDoList.push({
+						taskId:$scope.tId,
+					action:$scope.task, 
+					desc:$scope.description,
+					tskdate:$scope.tDate,
+					doneFlag:false
+				});
+
 				$scope.init();
 			};
 
 			//Function to update the status of the task as completed or not completed
 			$scope.updateTaskStatus = function updateTaskStatus(id){
+				console.log("done flag status at toDoList[", id,"] :", $scope.toDoList[id].doneFlag);
+
 				if($scope.toDoList[id].doneFlag === false){
 					$scope.toDoList[id].doneFlag = true;
 				}
