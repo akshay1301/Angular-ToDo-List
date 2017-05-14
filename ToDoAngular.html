@@ -86,7 +86,6 @@
 							<div class="panel-body">
 								<p ng-show="showAccordionEmpty($index)"><em>Add a description and date</em></p>
 								<p>{{list.desc}}</p>
-								<p>{{list.taskId}}</p>
 								<p style="text-align:right"><em>{{list.tskdate | date: 'd MMM yyyy EEEE h:mm a'}}</em></p>
 							</div>
 						</div>
@@ -156,23 +155,73 @@
 			$scope.taskString = null;
 
 			//Array of tasks
+			$scope.toDoListJson = [];
 			$scope.toDoList = [];
-			console.log(typeof toDoList);
 
 			//Initialisation function
 			$scope.init = function init(){
+				$scope.storageGetter();
+			};
+
+			$scope.refresh = function refresh(){
 				$scope.task = null;
 				$scope.description = null;
 				$scope.validInput = false;
 				$scope.dateDropDownInput = null;
+			};
+
+			//Getter function for local storage
+			$scope.storageGetter = function(){
+
+				//Initialising toDoList array from localstorage
 				if(localStorageService.get("tasks")){
-					$scope.toDoList = angular.fromJson(localStorageService.get("tasks"));
-					console.log("toDoList initialized with tasks from local storage", typeof toDoList, $scope.toDoList.isArray);
+					$scope.toDoListJson = angular.fromJson(localStorageService.get("tasks"));
+
+					angular.forEach($scope.toDoListJson, function(value,key){
+
+						var obj = [];
+
+						angular.forEach(value, function(value,key){
+							obj[key] = value;
+							//console.log(key+':'+value);
+						});
+
+						//console.log(obj.taskId, obj.action, obj.desc);
+
+						$scope.toDoList.push({
+								taskId:obj.taskId,
+							action:obj.action, 
+							desc:obj.desc,
+							tskdate:obj.tskdate,
+							doneFlag:obj.doneFlag
+						});
+					});
+					
+					//console.log("Size of toDoList array:",$scope.toDoList.length);
+
+					//angular.forEach($scope.toDoList, function(value,key){
+					//	console.log(key+':'+value);
+					//});
+					//Helps to understand that toDolist is an Array of objects containing task objects
+					//console.log("toDoList initialized with tasks from local storage");
+
+					//console.log($scope.toDoList.length);
+					//angular.forEach($scope.toDoList, function(value, key){
+					//	console.log(key+ ':'+value);
+					//	angular.forEach(value, function(value, key){
+					//		console.log(key+':'+value);
+					//	});
+					//});
 				}
 				else{
-					$scope.toDoList = null;
+					$scope.toDoList = [];
 					console.log("toDoList initialized with null");
 				}
+			}
+
+			$scope.storageSetter = function storageSetter(){
+				$scope.taskString = angular.toJson($scope.toDoList);
+				localStorageService.set("tasks",$scope.taskString);
 			};
 
 			//Function for adding tasks to To Do List. Pushes the input received through task model into the toDoList Array.
@@ -200,24 +249,28 @@
 					doneFlag:false
 				});
 
-				$scope.init();
+				$scope.storageSetter();
+				$scope.refresh();
 			};
 
 			//Function to update the status of the task as completed or not completed
 			$scope.updateTaskStatus = function updateTaskStatus(id){
-				console.log("done flag status at toDoList[", id,"] :", $scope.toDoList[id].doneFlag);
+				//console.log("done flag status at toDoList[", id,"] :", $scope.toDoList[id].doneFlag);
 
 				if($scope.toDoList[id].doneFlag === false){
 					$scope.toDoList[id].doneFlag = true;
+					$scope.storageSetter();
 				}
 				else if($scope.toDoList[id].doneFlag === true){
 					$scope.toDoList[id].doneFlag = false;
+					$scope.storageSetter();
 				}
 			};
 
 			//Function that deletes a task
 			$scope.deleteTask = function deleteTask(id){
 				$scope.toDoList.splice(id, 1);
+				$scope.storageSetter();
 			};
 
 			//Function for checking validity of main input box
@@ -260,6 +313,7 @@
 				$scope.toDoList[id].action = $scope.editAction;
 				$scope.toDoList[id].desc = $scope.editDesc;
 				$scope.toDoList[id].tskdate = $scope.editDate;
+				$scope.storageSetter();
 				//console.log("New object: ",$scope.toDoList[id].action, $scope.toDoList[id].desc,$scope.toDoList[id].tskdate);
 			}
 
