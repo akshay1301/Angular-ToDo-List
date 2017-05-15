@@ -150,6 +150,7 @@
 			//Global variables
 			$scope.tId = null;
 			$scope.editTaskId = null;
+			$scope.validUpdate = true;
 
 			//Used for converting toDoList Array to JSON for storing in local Storage which only accepts string
 			$scope.taskString = null;
@@ -340,14 +341,17 @@
 
 			//Add a placeholder if no information has been added
 			$scope.showAccordionEmpty = function showAccordionEmpty(id){
-				$scope.hideFlag = true;
-				if(($scope.toDoList[id].desc == null) && ($scope.toDoList[id].tskdate == null)){
+
+				if(($scope.toDoList[id].desc === '' || $scope.toDoList[id].desc === null) && ($scope.toDoList[id].tskdate === '' || $scope.toDoList[id].tskdate === null)){
+					//console.log($scope.toDoList[id].desc, $scope.toDoList[id].tskdate);
 					$scope.hideFlag = true;
 				}
 				else{
 					$scope.hideFlag = false;
+					//console.log(typeof $scope.toDoList[id].desc, typeof $scope.toDoList[id].tskdate);
 				}
 				//console.log("Show accordion called, hideFlag: ", $scope.hideFlag);
+				//console.log($scope.hideFlag);
 				return $scope.hideFlag;
 			}
 
